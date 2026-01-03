@@ -1,0 +1,51 @@
+#include <LiquidCrystal.h>
+
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+const int buttonPin = 6;
+const int buzzerPin = 8;
+
+bool sosActive = false;
+bool buzzerOn = false;
+
+unsigned long lastToggle = 0;
+
+void setup() {
+  pinMode(buttonPin, INPUT_PULLUP);
+  pinMode(buzzerPin, OUTPUT);
+  digitalWrite(buzzerPin, LOW);
+
+  lcd.begin(16, 2);
+  lcd.clear();
+  lcd.print("Press Button");
+}
+
+void loop() {
+  if (!sosActive && digitalRead(buttonPin) == LOW) {
+    sosActive = true;
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("SOS");
+    lcd.setCursor(0, 1);
+    lcd.print("Calling 000");
+
+    delay(1200);
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("SMS to");
+    lcd.setCursor(0, 1);
+    lcd.print("Emergency Contact");
+  }
+
+  if (sosActive) {
+    unsigned long now = millis();
+
+    if (now - lastToggle >= 300) {
+      lastToggle = now;
+      buzzerOn = !buzzerOn;
+      digitalWrite(buzzerPin, buzzerOn ? HIGH : LOW);
+    }
+  }
+}
